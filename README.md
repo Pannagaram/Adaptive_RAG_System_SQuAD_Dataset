@@ -119,7 +119,7 @@ An intelligent Retrieval-Augmented Generation (RAG) pipeline that **optimizes it
 ```bash
 # 1. Clone the repository
 git clone <your-repo-url>
-cd "AGENTIC RAG ANTIGRAVITY"
+cd "Adaptive RAG"
 
 # 2. Create a virtual environment (recommended)
 python -m venv venv
@@ -312,5 +312,5 @@ The benchmark measures:
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
-Built with ❤️ by Pannagaram 
+Built with ❤️ by Pannagaram
 
