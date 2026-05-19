@@ -101,6 +101,8 @@ An intelligent Retrieval-Augmented Generation (RAG) pipeline that **optimizes it
 | **4** | Adaptive Feedback | Auto-adjusts K and strategy based on performance trends |
 | **5** | Performance Report | Latency breakdown, quality metrics, adaptive impact |
 | **5** | Benchmark Suite | 50+ hardcoded + SQuAD validation queries with F1 scoring |
+| **6** | Web Interface | Flask-based modern glassmorphic chat interface |
+| **6** | Transparency UI | Real-time expandable view of pipeline latency, scores, and retrieved sources |
 
 ---
 
@@ -128,19 +130,23 @@ venv\Scripts\activate        # Windows
 pip install -r requirements.txt
 ```
 
-### First Run
+### Running the System
 
 ```bash
-# Interactive mode (auto-downloads dataset & models on first run)
+# Start the Web Interface (Recommended)
+python app.py
+# This will open a local server at http://localhost:5000 with a modern chat UI
+
+# Interactive CLI mode
 python main.py
 
-# Single query
+# Single CLI query
 python main.py --query "What is photosynthesis?"
 
 # Run benchmarks
 python main.py --benchmark
 
-# Force re-download everything
+# Force re-download dataset/models
 python main.py --force-reload
 ```
 
@@ -184,6 +190,11 @@ Tracks rolling-window metrics and adjusts:
 
 ### Part 5: Performance Measurement
 Reports: P50/P95/P99 latency, retrieval vs generation breakdown, confidence distribution, adaptive decision impact, F1 scores against ground truth.
+
+### Part 6: Web Interface
+A modern, dark-themed Flask frontend provides a chat-like experience:
+- **Real-Time Transparency**: Users can expand an "Analysis & Metrics" panel on every response to see exactly what the adaptive pipeline decided (K size, strategy, reranking) and exactly which source chunks were used to generate the answer.
+- **Session Management**: Chat sessions are grouped dynamically in the sidebar.
 
 ---
 
@@ -296,6 +307,10 @@ The benchmark measures:
 
 ---
 
-## 📄 License
+# 🤝 Contributing
 
-MIT License
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+Built with ❤️ by Pannagaram 
+

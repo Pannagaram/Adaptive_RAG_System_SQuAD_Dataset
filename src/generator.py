@@ -7,7 +7,7 @@ Returns generated text along with a confidence proxy based on token scores.
 
 import time
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
@@ -56,7 +56,8 @@ class TextGenerator:
         print(f"[Generator] Model loaded on {next(self.model.parameters()).device}")
 
     def generate(self, query: str, context_chunks: List[str],
-                 max_new_tokens: Optional[int] = None) -> GenerationResult:
+                 max_new_tokens: Optional[int] = None,
+                 history: Optional[List[Dict[str, str]]] = None) -> GenerationResult:
         """
         Generate an answer given a query and retrieved context chunks.
 
@@ -64,6 +65,7 @@ class TextGenerator:
             query: The user's question
             context_chunks: List of relevant text passages
             max_new_tokens: Override for max generation length
+            history: Optional list of previous chat messages [{"role": "user"/"ai", "text": "..."}]
 
         Returns:
             GenerationResult with answer, confidence, and timing info
@@ -72,8 +74,8 @@ class TextGenerator:
 
         max_tokens = max_new_tokens or self.config.max_new_tokens
 
-        # Build prompt
-        prompt = self._build_prompt(query, context_chunks)
+        # Build prompt with history if available
+        prompt = self._build_prompt(query, context_chunks, history)
 
         # Tokenize
         inputs = self.tokenizer(
@@ -117,14 +119,24 @@ class TextGenerator:
             prompt=prompt,
         )
 
-    def _build_prompt(self, query: str, context_chunks: List[str]) -> str:
+    def _build_prompt(self, query: str, context_chunks: List[str], history: Optional[List[Dict[str, str]]] = None) -> str:
         """Build a structured prompt for FLAN-T5."""
         # Join context with separators
         context = "\n\n".join(context_chunks[:5])  # Limit to avoid token overflow
+        
+        # Build conversation history string
+        history_str = ""
+        if history:
+            # Only use last 3 turns to avoid token overflow
+            recent_history = history[-3:] if len(history) > 3 else history
+            for msg in recent_history:
+                role = "User" if msg["role"] == "user" else "Assistant"
+                history_str += f"{role}: {msg['text']}\n"
+            
+            history_str = f"Previous Conversation:\n{history_str}\n"
 
         prompt = (
-            f"Answer the following question based on the provided context. "
-            f"If the answer is not in the context, say 'I cannot find the answer in the provided context.'\n\n"
+            f"Answer based solely on the Context. If the Context does not contain the answer, say 'I cannot find the answer in the provided context.'\n\n"
             f"Context:\n{context}\n\n"
             f"Question: {query}\n\n"
             f"Answer:"

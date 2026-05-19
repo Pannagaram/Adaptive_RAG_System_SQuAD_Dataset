@@ -160,19 +160,19 @@ class AdaptiveDecisionLayer:
             top_k = self.config.simple_k
             strategy = "vector"           # Fast vector-only for simple queries
             use_reranking = False          # Skip re-ranking for speed
-            reason = f"Simple query ({analysis.word_count} words, score={analysis.complexity_score:.2f}) → small K, vector-only, no rerank"
+            reason = f"Simple query ({analysis.word_count} words, score={analysis.complexity_score:.2f}) -> small K, vector-only, no rerank"
 
         elif analysis.complexity_level == "medium":
             top_k = self.config.medium_k
             strategy = "hybrid"           # Use hybrid for medium complexity
             use_reranking = True
-            reason = f"Medium query ({analysis.word_count} words, score={analysis.complexity_score:.2f}) → moderate K, hybrid, with rerank"
+            reason = f"Medium query ({analysis.word_count} words, score={analysis.complexity_score:.2f}) -> moderate K, hybrid, with rerank"
 
         else:  # complex
             top_k = self.config.complex_k
             strategy = "hybrid"           # Full hybrid for complex queries
             use_reranking = True
-            reason = f"Complex query ({analysis.word_count} words, score={analysis.complexity_score:.2f}) → large K, hybrid, with rerank"
+            reason = f"Complex query ({analysis.word_count} words, score={analysis.complexity_score:.2f}) -> large K, hybrid, with rerank"
 
         latency_adjusted = False
 
@@ -183,7 +183,7 @@ class AdaptiveDecisionLayer:
                 old_k = top_k
                 top_k = max(CONFIG.retrieval.min_top_k,
                            min(CONFIG.retrieval.max_top_k, top_k + k_adj))
-                reason += f" | Feedback: K adjusted {old_k}→{top_k}"
+                reason += f" | Feedback: K adjusted {old_k}->{top_k}"
 
             if feedback_overrides.get("disable_reranking", False):
                 use_reranking = False
@@ -199,7 +199,7 @@ class AdaptiveDecisionLayer:
                 top_k = max(CONFIG.retrieval.min_top_k, top_k - 2)
                 use_reranking = False
                 latency_adjusted = True
-                reason += f" | Latency reduction: K→{top_k}, rerank off"
+                reason += f" | Latency reduction: K->{top_k}, rerank off"
 
         return AdaptiveDecision(
             top_k=top_k,

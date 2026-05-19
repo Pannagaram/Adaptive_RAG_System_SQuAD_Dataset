@@ -22,6 +22,14 @@ from src.metrics import PerformanceMetrics
 
 
 @dataclass
+class SourceDocument:
+    """A source document returned with the response."""
+    text: str
+    title: str = ""
+    score: float = 0.0
+
+
+@dataclass
 class PipelineResponse:
     """Complete response from the RAG pipeline."""
     query: str
@@ -38,6 +46,7 @@ class PipelineResponse:
     adaptive_reason: str
     num_docs_retrieved: int
     retrieved_texts: List[str]
+    source_documents: Optional[List[SourceDocument]] = None
 
 
 class AdaptiveRAGPipeline:
@@ -102,7 +111,7 @@ class AdaptiveRAGPipeline:
         self._initialized = True
         print("\n[OK] Pipeline ready!\n")
 
-    def query(self, query_text: str, verbose: bool = False) -> PipelineResponse:
+    def query(self, query_text: str, verbose: bool = False, history: Optional[List[Dict[str, str]]] = None) -> PipelineResponse:
         """
         Process a query through the full adaptive pipeline.
 
@@ -146,7 +155,9 @@ class AdaptiveRAGPipeline:
                 results=retrieval_output.results,
                 top_n=CONFIG.retrieval.rerank_top_n,
             )
+            
             final_results = reranked
+                
             if verbose:
                 print(f"Re-ranked to {len(final_results)} results in {rerank_time:.4f}s")
         else:
@@ -154,11 +165,13 @@ class AdaptiveRAGPipeline:
 
         # ── Step 4: Generate ─────────────────────────────────────────────────
         context_texts = [r.text for r in final_results]
-        gen_result = self.generator.generate(query_text, context_texts)
+        gen_result = self.generator.generate(query_text, context_texts, history=history)
+        answer = gen_result.answer
+        confidence = gen_result.confidence
         generation_time = gen_result.generation_time
 
         if verbose:
-            print(f"Generated answer in {generation_time:.4f}s (confidence={gen_result.confidence:.4f})")
+            print(f"Generated answer in {generation_time:.4f}s (confidence={confidence:.4f})")
 
         total_latency = time.time() - start_time
 
@@ -187,10 +200,22 @@ class AdaptiveRAGPipeline:
         )
         self.feedback.record_query(record)
 
+        # Build source documents for UI display
+        source_docs = []
+        for r in final_results:
+            # Extract title from the document text (first line or first sentence)
+            text = r.text
+            title_text = text.split('.')[0][:80] if text else "Document"
+            source_docs.append(SourceDocument(
+                text=text,
+                title=title_text,
+                score=r.final_score,
+            ))
+
         return PipelineResponse(
             query=query_text,
-            answer=gen_result.answer,
-            confidence=gen_result.confidence,
+            answer=answer,
+            confidence=confidence,
             total_latency=total_latency,
             retrieval_time=retrieval_time,
             rerank_time=rerank_time,
@@ -201,7 +226,8 @@ class AdaptiveRAGPipeline:
             complexity_score=decision.complexity_score,
             adaptive_reason=decision.reason,
             num_docs_retrieved=len(final_results),
-            retrieved_texts=context_texts,
+            retrieved_texts=[r.text for r in final_results],
+            source_documents=source_docs,
         )
 
     def get_stats(self) -> Dict:
