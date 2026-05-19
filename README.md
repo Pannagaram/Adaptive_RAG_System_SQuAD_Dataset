@@ -20,9 +20,9 @@ An intelligent Retrieval-Augmented Generation (RAG) pipeline that **optimizes it
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                        User Query                                │
+│    Web UI (Flask/HTML/JS)    OR    CLI Interface (main.py)       │
 └──────────────────────┬───────────────────────────────────────────┘
-                       │
+                       │ User Query + Conversational Memory
                        ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │                   Query Analyzer                                 │
@@ -229,11 +229,20 @@ A modern, dark-themed Flask frontend provides a chat-like experience:
 
 ## 📁 Project Structure
 
-```
+```text
 ├── README.md                    # This file
+├── REPORT.md                    # Final project report & tradeoffs
 ├── requirements.txt             # Python dependencies
 ├── config.py                    # Central configuration
-├── main.py                      # CLI entry point
+├── main.py                      # CLI entry point (Interactive & Benchmarks)
+├── app.py                       # Flask Web Server entry point
+│
+├── static/                      # Frontend assets
+│   ├── app.js                   # UI logic & conversational session state
+│   └── style.css                # Glassmorphic dark theme
+│
+├── templates/                   # HTML templates
+│   └── index.html               # Main chat interface layout
 │
 ├── src/
 │   ├── __init__.py
