@@ -296,6 +296,10 @@ The benchmark measures:
 
 ---
 
-## 📄 License
+# 🤝 Contributing
 
-MIT License
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+Built with ❤️ by Pannagaram
+
