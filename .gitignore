@@ -1,0 +1,30 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Data caches (large files - will be regenerated on first run)
+data/documents.pkl
+data/faiss_index/
+data/feedback_state.json
+
+# Reports (generated at runtime)
+report/
+
+# Debug files
+debug_imports.py
+debug_out.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# HuggingFace cache
+.cache/
